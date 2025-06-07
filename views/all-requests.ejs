@@ -1,0 +1,83 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>قائمة الطلبات</title>
+  <style>
+   table {
+    width: 90%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    table-layout: auto;
+  }
+
+  th, td {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    text-align: center;
+    word-break: break-word;
+  }
+    th {
+      background-color: #f2f2f2;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📋 قائمة الطلبات التسويقية</h2>
+  <table tyle="direction: rtl; margin: auto;">
+    <thead>
+      <tr>
+        <th>رقم</th>
+        <th>رابط القناة</th>
+        <th>المتابعين</th>
+        <th>رابط الحساب</th>
+        <th>المنصة</th>
+        <th>السعر</th>
+        <th>المحفظة</th>
+        <th>ملاحظات</th>
+        <th>الإجراءات</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      <% if (requests.length === 0) { %>
+        <tr><td colspan="8">لا توجد طلبات حالياً</td></tr>
+      <% } else { %>
+        <% requests.forEach((r, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= r.channel_link %></td>
+            <td><%= r.followers %></td>
+            <td><%= r.account_link %></td>
+            <td><%= r.platform %></td>
+            <td><%= r.price %></td>
+            <td><%= r.wallet %></td>
+            <td><%= r.notes %></td>
+            <td>
+  <% if (r.status === 'pending') { %>
+    <form method="POST" action="/review-request" style="display:inline;">
+      <input type="hidden" name="id" value="<%= r.id %>">
+      <button name="action" value="approve" type="submit">✅ موافقة</button>
+    </form>
+    <form method="POST" action="/review-request" style="display:inline;">
+      <input type="hidden" name="id" value="<%= r.id %>">
+      <button name="action" value="reject" type="submit">❌ رفض</button>
+    </form>
+  <% } else { %>
+    <span><%= r.status === 'approved' ? '✅ تمت الموافقة' : '❌ مرفوض' %></span>
+  <% } %>
+</td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+</body>
+</html>

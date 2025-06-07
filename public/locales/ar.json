@@ -1,0 +1,58 @@
+{
+  "header": {
+    "title": "ميمشوت - إدارة الطلبات",
+    "new_request": "تقديم طلب جديد",
+    "manage_requests": "إدارة الطلبات",
+    "login": "تسجيل دخول",
+    "logout": "تسجيل خروج",
+    "language": "English"
+  },
+
+  "requests_page": {
+    "title": "قائمة الطلبات",
+    "description": "إدارة طلبات النشر والمتابعين",
+    "filter_label": "فلترة حسب الحالة:",
+    "status_filter": {
+      "all": "جميع الحالات",
+      "pending": "مراجعة",
+      "approved": "معتمد",
+      "receipt_added": "تم الإيصال",
+      "publishing": "جاري النشر",
+      "complete": "مكتمل",
+      "rejected": "مرفوض"
+    },
+    "export_pdf": "تصدير إلى PDF",
+    "table_headers": {
+      "id": "#",
+      "channel": "رابط القناة",
+      "followers": "المتابعين",
+      "account": "الحساب",
+      "platform": "المنصة",
+      "price": "السعر",
+      "wallet": "المحفظة",
+      "notes": "ملاحظات",
+      "status": "الحالة",
+      "receipt": "الإيصال",
+      "actions": "الإجراءات",
+      "Market": "الإجراءات"
+    },
+    "statuses": {
+  "pending": "مراجعة",
+  "approved": "معتمد",
+  "receipt-added": "تم الإيصال",
+  "publishing": "جاري النشر",
+  "complete": "مكتمل",
+  "rejected": "مرفوض"
+},
+"actions": {
+  "reject": "رفض",
+  "approve": "اعتماد",
+  "add_receipt": "إضافة إيصال",
+  "publish": "جاري النشر",
+  "complete": "مكتمل"
+}
+
+  }
+
+
+}

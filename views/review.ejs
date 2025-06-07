@@ -1,0 +1,36 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>مراجعة الطلبات</title>
+  <style>
+    body { font-family: sans-serif; direction: rtl; padding: 20px; }
+    .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; }
+    button { padding: 5px 10px; background: green; color: white; border: none; }
+  </style>
+</head>
+<body>
+  <h1>قائمة الطلبات الجديدة</h1>
+
+  <% if (requests.length === 0) { %>
+    <p>لا توجد طلبات جديدة.</p>
+  <% } else { %>
+    <% requests.forEach(request => { %>
+      <div class="card">
+        <p><strong>رابط القناة:</strong> <%= request.channel_link %></p>
+        <p><strong>عدد المتابعين:</strong> <%= request.followers %></p>
+        <p><strong>الحساب:</strong> <%= request.account_link %></p>
+        <p><strong>المنصة:</strong> <%= request.platform %></p>
+        <p><strong>السعر:</strong> <%= request.price %></p>
+        <p><strong>محفظة سولانا:</strong> <%= request.wallet %></p>
+        <p><strong>ملاحظات:</strong> <%= request.notes || 'لا توجد' %></p>
+        <form method="POST" action="/mark-reviewed/<%= request.id %>">
+          <button type="submit">✔️ تمت المراجعة</button>
+        </form>
+      </div>
+    <% }); %>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>تقديم طلب تسويق | ميمشوت</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4F46E5;
+      --secondary-color: #2c3e50;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 95%;
+      width: 100%;
+      margin: 20px auto;
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 20px;
+    }
+    
+    h2 {
+      color: var(--secondary-color);
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 50%;
+      transform: translateX(50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+    
+    form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group.full-width {
+      grid-column: span 1;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--secondary-color);
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-family: 'Tajawal', sans-serif;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      transition: all 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      font-family: 'Tajawal', sans-serif;
+      font-size: clamp(1rem, 3vw, 1.1rem);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    
+    button:hover {
+      background-color: #4338CA;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-note {
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    /* تحسينات للشاشات المتوسطة والكبيرة */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 800px;
+        padding: 30px;
+        margin: 30px auto;
+      }
+      
+      form {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      
+      .form-group.full-width {
+        grid-column: span 2;
+      }
+      
+      h2::after {
+        width: 100px;
+      }
+    }
+    
+    /* تحسينات خاصة للشاشات الصغيرة جداً */
+    @media (max-width: 360px) {
+      input, select, textarea {
+        padding: 10px 12px;
+      }
+      
+      button {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><i class="fas fa-bullhorn"></i> نموذج تقديم طلب التسويق</h2>
+    
+    <form action="/submit-request" method="POST">
+      <!-- حقل المندوب (username) -->
+      <div class="form-group">
+        <label for="maerket"><i class="fas fa-user-tie"></i> المندوب</label>
+        <input 
+          type="text" 
+          id="maerket" 
+          name="maerket_display" 
+          value="<%= user && user.username ? user.username : '' %>" 
+          readonly
+        >
+        <input type="hidden" name="Maerket" value="<%= user && user.username ? user.username : '' %>">
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="channel_link"><i class="fas fa-link"></i> رابط قناة المؤثر</label>
+        <input 
+          type="url" 
+          id="channel_link" 
+          name="channel_link" 
+          required
+          placeholder="https://instagram.com/username"
+        >
+        <p class="form-note">يجب أن يكون الرابط عاماً وقابلاً للوصول</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="followers"><i class="fas fa-users"></i> عدد المتابعين</label>
+        <input 
+          type="number" 
+          id="followers" 
+          name="followers" 
+          required
+          min="1000"
+          placeholder="10000"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="platform"><i class="fas fa-mobile-screen"></i> المنصة المستخدمة</label>
+        <select id="platform" name="platform" required>
+          <option value="" disabled selected>اختر المنصة</option>
+          <option value="instagram">إنستغرام</option>
+          <option value="tiktok">تيك توك</option>
+          <option value="x">اكس</option>
+          <option value="youtube">يوتيوب</option>
+          <option value="telegram">تيليجرام</option>
+          <option value="snapchat">سناب شات</option>
+        </select>
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="account_link"><i class="fas fa-user"></i> رابط حساب المؤثر</label>
+        <input 
+          type="url" 
+          id="account_link" 
+          name="account_link" 
+          required
+          placeholder="https://instagram.com/username"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="price"><i class="fas fa-tag"></i> السعر المطلوب (ر.س)</label>
+        <input 
+          type="number" 
+          id="price" 
+          name="price" 
+          required
+          min="50"
+          step="50"
+          placeholder="500"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="wallet"><i class="fas fa-wallet"></i> عنوان محفظة سولانا</label>
+        <input 
+          type="text" 
+          id="wallet" 
+          name="wallet" 
+          required
+          placeholder="أدخل عنوان المحفظة"
+        >
+        <p class="form-note">يجب أن يكون العنوان صحيحاً لتلقي الدفع</p>
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="notes"><i class="fas fa-notes"></i> ملاحظات إضافية</label>
+        <textarea 
+          id="notes" 
+          name="notes"
+          placeholder="أي معلومات إضافية تريد إضافتها..."
+        ></textarea>
+      </div>
+      
+      <button type="submit">
+        <i class="fas fa-paper-plane"></i> إرسال الطلب
+      </button>
+    </form>
+  </div>
+</body>
+</html>

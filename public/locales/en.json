@@ -1,0 +1,54 @@
+{
+  "header": {
+    "title": "MemShot - Requests Management",
+    "new_request": "New Request",
+    "manage_requests": "Manage Requests",
+    "login": "Login",
+    "logout": "Logout",
+    "language": "العربية"
+  },
+  "requests_page": {
+    "title": "Requests List",
+    "description": "Manage publishing and followers requests",
+    "filter_label": "Filter by status:",
+    "export_btn": "Export to PDF",
+    "status_filter": {
+      "all": "All Statuses",
+      "pending": "Pending",
+      "approved": "Approved",
+      "receipt_added": "Receipt Added",
+      "publishing": "Publishing",
+      "complete": "Complete",
+      "rejected": "Rejected"
+    },
+    "table_headers": {
+      "id": "#",
+      "channel": "Channel Link",
+      "followers": "Followers",
+      "account": "Account",
+      "platform": "Platform",
+      "price": "Price",
+      "wallet": "Wallet",
+      "notes": "Notes",
+      "status": "Status",
+      "receipt": "Receipt",
+      "actions": "Actions",
+      "Market": "Market"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "receipt-added": "Receipt Added",
+      "publishing": "Publishing",
+      "complete": "Complete",
+      "rejected": "Rejected"
+    },
+    "actions": {
+      "reject": "Reject",
+      "approve": "Approve",
+      "add_receipt": "Add Receipt",
+      "publish": "Publishing",
+      "complete": "Complete"
+    }
+  }
+}

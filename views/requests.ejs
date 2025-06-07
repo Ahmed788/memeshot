@@ -1,0 +1,793 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>قائمة الطلبات | ميمشوت</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4F46E5;
+      --secondary-color: #2c3e50;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .main-container {
+      padding: 15px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    h2 {
+      color: var(--secondary-color);
+      font-size: clamp(1.5rem, 4vw, 1.8rem);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto;
+      table-layout: auto;
+      min-width: 600px;
+    }
+    
+    th, td {
+      padding: 10px 12px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      border: 1px solid #e0e0e0;
+      text-align: center;
+      word-break: break-word;
+    }
+    
+    th {
+      background-color: var(--secondary-color);
+      color: white;
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      white-space: nowrap;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    
+    /* حالة الطلب */
+    .status-pending { background-color: rgba(255, 193, 7, 0.1); }
+    .status-approved { background-color: rgba(40, 167, 69, 0.1); }
+    .status-publishing { background-color: rgba(0, 123, 255, 0.1); }
+    .status-complete { background-color: rgba(108, 117, 125, 0.1); }
+    .status-rejected { background-color: rgba(220, 53, 69, 0.1); }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .badge-pending { background-color: #fff3cd; color: #856404; }
+    .badge-approved { background-color: #d4edda; color: #155724; }
+    .badge-publishing { background-color: #cce5ff; color: #004085; }
+    .badge-complete { background-color: #e2e3e5; color: #383d41; }
+    .badge-rejected { background-color: #f8d7da; color: #721c24; }
+    
+    /* الأزرار */
+    .btn {
+      padding: 6px 10px;
+      margin: 2px;
+      cursor: pointer;
+      border: none;
+      border-radius: var(--border-radius);
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      white-space: nowrap;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-reject { 
+      background-color: var(--danger-color); 
+      color: white; 
+    }
+    
+    .btn-action { 
+      background-color: var(--primary-color); 
+      color: white; 
+    }
+    
+    .btn-success { 
+      background-color: var(--success-color); 
+      color: white; 
+    }
+    
+    .btn-secondary { 
+      background-color: var(--secondary-color); 
+      color: white; 
+    }
+    
+    /* النافذة المنبثقة */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 95%;
+      max-width: 500px;
+      padding: 20px;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .modal-title {
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-family: 'Tajawal', sans-serif;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    /* رسائل التنبيه */
+    .alert {
+      padding: 12px;
+      border-radius: var(--border-radius);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    /* تحسينات للشاشات المتوسطة والكبيرة */
+    @media (min-width: 768px) {
+      .main-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      th, td {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+      
+      .status-badge {
+        font-size: 0.8rem;
+      }
+    }
+    
+    /* تحسينات خاصة للشاشات الصغيرة جداً */
+    @media (max-width: 360px) {
+      .btn {
+        padding: 5px 8px;
+      }
+      
+      th, td {
+        padding: 8px 10px;
+      }
+    }
+  </style>
+   
+  <style>
+    /* أضف هذه الأنماط للعناصر الجديدة */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-label {
+      font-weight: 500;
+      color: var(--secondary-color);
+      white-space: nowrap;
+    }
+    
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-family: 'Tajawal', sans-serif;
+      min-width: 150px;
+    }
+    
+    .export-btn {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+    
+    .export-btn:hover {
+      background-color: #1a2a3a;
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter-group {
+        width: 100%;
+      }
+      
+      .filter-select {
+        width: 100%;
+      }
+      
+      .export-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- أضف مكتبة الخطوط العربية -->
+  <script src="https://cdn.jsdelivr.net/npm/@amireh/xarabic@latest/dist/xarabic.min.js"></script>
+  
+  <!-- أو استخدم هذا الخط البديل -->
+  <script src="https://cdn.rawgit.com/MrRio/jsPDF/master/dist/jspdf.min.js"></script>
+  <script src="https://cdn.rawgit.com/simonbengtsson/jsPDF-AutoTable/master/dist/jspdf.plugin.autotable.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/arabicjs/arabicjs@main/arabic.js"></script>
+</head>
+<body><div class="main-container">
+  <div class="header">
+    <h2 id="requests-title"><i  class="fas fa-list-alt"></i> قائمة الطلبات</h2>
+    <p id="requests-description">إدارة طلبات النشر والمتابعين</p>
+  </div>
+  
+  <div class="action-bar">
+    <div class="filter-group">
+      <span id="filter-label" class="filter-label">فلترة حسب الحالة:</span>
+      <select id="statusFilter" class="filter-select">
+        <option value="all" id="status-all">جميع الحالات</option>
+        <option value="pending" id="status-pending">مراجعة</option>
+        <option value="approved" id="status-approved">معتمد</option>
+        <option value="receipt-added" id="status-receipt-added">تم الإيصال</option>
+        <option value="publishing" id="status-publishing">جاري النشر</option>
+        <option value="complete" id="status-complete">مكتمل</option>
+        <option value="rejected" id="status-rejected">مرفوض</option>
+      </select>
+    </div>
+    
+    <button id="export-btn" class="export-btn">
+      <i class="fas fa-file-pdf"></i>
+      <span id="export-btn-text">تصدير إلى PDF</span>
+    </button>
+  </div>
+  
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th id="th-id">#</th>
+          <th id="th-channel">رابط القناة</th>
+          <th id="th-followers">المتابعين</th>
+          <th id="th-account">الحساب</th>
+          <th id="th-platform">المنصة</th>
+          <th id="th-price">السعر</th>
+          <th id="th-wallet">المحفظة</th>
+          <th id="th-notes">ملاحظات</th>
+          <th id="th-status">الحالة</th>
+          <th id="th-receipt">الإيصال</th>
+          <th id="th-actions">الإجراءات</th>
+          <th id="th-maerket">المندوب</th>
+        </tr>
+      </thead>
+        <tbody>
+          <% requests.forEach(r => { %>
+            <tr class="status-<%= r.status || 'pending' %>">
+              <td><%= r.id %></td>
+              <td><a href="<%= r.channel_link %>" target="_blank"><i class="fas fa-external-link-alt"></i> زيارة</a></td>
+              <td><%= r.followers.toLocaleString() %></td>
+              <td><%= r.account_link %></td>
+              <td><%= r.platform %></td>
+              <td><%= r.price.toLocaleString() %> ر.س</td>
+              <td><%= r.wallet %></td>
+              <td><%= r.notes || '-' %></td>
+              <td>
+                <span class="status-badge badge-<%= r.status || 'pending' %>">
+                  <% if(r.status === 'pending') { %>مراجعة<% } %>
+                  <% if(r.status === 'approved') { %>معتمد<% } %>
+                  <% if(r.status === 'receipt-added') { %>تم الإيصال<% } %>
+                  <% if(r.status === 'publishing') { %>جاري النشر<% } %>
+                  <% if(r.status === 'complete') { %>مكتمل<% } %>
+                  <% if(r.status === 'rejected') { %>مرفوض<% } %>
+                </span>
+              </td>
+              <td><%= r.receipt || '-' %></td>
+              <td>
+                <!-- marketing: رفض واعتماد الطلبات -->
+                <% if (user && user.role === 'marketing' && r.status === 'pending') { %>
+                  <!-- رفض -->
+                  <form method="POST" action="/reject-request" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= r.id %>">
+                    <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
+                  </form>
+
+                  <!-- اعتماد -->
+                  <form method="POST" action="/approve-request" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= r.id %>">
+                    <button class="btn btn-success" type="submit"><i class="fas fa-check"></i> اعتماد</button>
+                  </form>
+                <% } %>
+
+                <!-- sales: رفض بعد الاعتماد -->
+                <% if (user && user.role === 'sales' && r.status === 'approved') { %>
+                  <!-- رفض -->
+                  <form method="POST" action="/reject-request" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= r.id %>">
+                    <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
+                  </form>
+
+                  <!-- إضافة إيصال -->
+                  <button class="btn btn-action" onclick="showReceiptModal('<%= r.id %>')"><i class="fas fa-receipt"></i> إضافة إيصال</button>
+                <% } %>
+
+                <!-- agent: جاري النشر -->
+                <% if (user && user.role === 'agent' && r.status === 'receipt-added') { %>
+                  <form method="POST" action="/publish-request" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= r.id %>">
+                    <button class="btn btn-action" type="submit"><i class="fas fa-upload"></i> جاري النشر</button>
+                  </form>
+                <% } %>
+
+                <!-- marketing: مكتمل -->
+                <% if (user && user.role === 'marketing' && r.status === 'publishing') { %>
+                  <form method="POST" action="/complete-request" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= r.id %>">
+                    <button class="btn btn-secondary" type="submit"><i class="fas fa-check-circle"></i> مكتمل</button>
+                  </form>
+                <% } %>
+              </td>
+              <td><%= r.Maerket || '-' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- نافذة منبثقة لإضافة رقم الإيصال -->
+  <div id="receiptModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-receipt"></i> إضافة رقم الإيصال</h3>
+        <button class="close-btn" onclick="hideReceiptModal()">&times;</button>
+      </div>
+      <form method="POST" action="/add-receipt">
+        <input type="hidden" id="modal-request-id" name="id">
+        <div class="form-group">
+          <label for="receipt-input">رقم الإيصال</label>
+          <input type="text" id="receipt-input" class="form-control" name="receipt" maxlength="50" placeholder="أدخل رقم الإيصال" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-reject" onclick="hideReceiptModal()"><i class="fas fa-times"></i> إلغاء</button>
+          <button type="submit" class="btn btn-action"><i class="fas fa-check"></i> متابعة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+ <script>
+  
+    // دالة تصفية الجدول حسب الحالة
+    function filterTable() {
+      const filterValue = document.getElementById("statusFilter").value;
+      const rows = document.querySelectorAll("tbody tr");
+      
+      rows.forEach(row => {
+        if (filterValue === "all") {
+          row.style.display = "";
+        } else {
+          if (row.classList.contains(`status-${filterValue}`)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        }
+      });
+    }
+    
+    // دالة تصدير الجدول إلى PDF
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // عنوان التقرير
+      doc.setFont('tajawal', 'normal');
+      doc.setFontSize(18);
+      doc.text('قائمة الطلبات - ميمشوت', 105, 15, { align: 'center' });
+      
+      // تاريخ التقرير
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ar-EG');
+      doc.setFontSize(10);
+      doc.text(`تاريخ التصدير: ${dateStr}`, 105, 25, { align: 'center' });
+      
+      // بيانات الجدول
+      const headers = [
+        "#", 
+        "رابط القناة", 
+        "المتابعين", 
+        "الحساب", 
+        "المنصة", 
+        "السعر", 
+        "المحفظة", 
+        "الحالة", 
+        "الإيصال"
+      ];
+      
+      const rows = [];
+      document.querySelectorAll("tbody tr").forEach(row => {
+        if (row.style.display !== "none") {
+          const cells = row.querySelectorAll("td");
+          const rowData = [
+            cells[0].textContent,
+            cells[1].querySelector("a") ? cells[1].querySelector("a").getAttribute("href") : "",
+            cells[2].textContent,
+            cells[3].textContent,
+            cells[4].textContent,
+            cells[5].textContent,
+            cells[6].textContent,
+            cells[8].textContent.trim(),
+            cells[9].textContent
+          ];
+          rows.push(rowData);
+        }
+      });
+      
+      // إضافة الجدول إلى PDF
+      doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: 30,
+        styles: {
+          font: 'tajawal',
+          fontStyle: 'normal',
+          halign: 'center'
+        },
+        headStyles: {
+          fillColor: [44, 62, 80],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 'auto' },
+          3: { cellWidth: 'auto' },
+          4: { cellWidth: 'auto' },
+          5: { cellWidth: 'auto' },
+          6: { cellWidth: 'auto' },
+          7: { cellWidth: 'auto' },
+          8: { cellWidth: 'auto' }
+        }
+      });
+      
+      // حفظ الملف
+      doc.save(`طلبات_ميمشوت_${dateStr.replace(/\//g, '-')}.pdf`);
+    }
+
+    // باقي الJavaScript كما هو ...
+  </script>
+  <script>
+    function showReceiptModal(id) {
+      document.getElementById("modal-request-id").value = id;
+      document.getElementById("receiptModal").classList.add("active");
+      document.getElementById("receipt-input").focus();
+    }
+    
+    function hideReceiptModal() {
+      document.getElementById("receiptModal").classList.remove("active");
+    }
+    
+    // إغلاق النافذة عند النقر خارجها
+    document.getElementById("receiptModal").addEventListener('click', function(e) {
+      if(e.target === this) {
+        hideReceiptModal();
+      }
+    });
+    
+    // إغلاق النافذة عند الضغط على زر ESC
+    document.addEventListener('keydown', function(e) {
+      if(e.key === "Escape") {
+        hideReceiptModal();
+      }
+    });
+  </script>
+
+<script>
+const RequestsLanguageService = {
+  currentLanguage: localStorage.getItem('language') || 'ar',
+
+  async loadTranslations() {
+    try {
+      const res = await fetch(`/locales/${this.currentLanguage}.json`);
+      if (!res.ok) throw new Error('Network error');
+      return await res.json();
+    } catch (err) {
+      console.error('Translation load failed:', err);
+      return {
+        requests_page: {
+          title: "قائمة الطلبات",
+          description: "إدارة طلبات النشر والمتابعين",
+          filter_label: "فلترة حسب الحالة:",
+          status_filter: {
+            all: "جميع الحالات",
+            pending: "مراجعة",
+            approved: "معتمد",
+            receipt_added: "تم الإيصال",
+            publishing: "جاري النشر",
+            complete: "مكتمل",
+            rejected: "مرفوض"
+          },
+          export_pdf: "تصدير إلى PDF",
+          table_headers: {
+            id: "#",
+            channel: "رابط القناة",
+            followers: "المتابعين",
+            account: "الحساب",
+            platform: "المنصة",
+            price: "السعر",
+            wallet: "المحفظة",
+            notes: "ملاحظات",
+            status: "الحالة",
+            receipt: "الإيصال",
+            actions: "الإجراءات"
+          }
+        }
+      };
+    }
+  },
+
+
+async applyTranslations() {
+  const t = (await this.loadTranslations()).requests_page;
+
+  const elements = {
+    'requests-title': t.title,
+    'requests-description': t.description,
+    'filter-label': t.filter_label,
+    'status-all': t.status_filter.all,
+    'status-pending': t.status_filter.pending,
+    'status-approved': t.status_filter.approved,
+    'status-receipt-added': t.status_filter.receipt_added,
+    'status-publishing': t.status_filter.publishing,
+    'status-complete': t.status_filter.complete,
+    'status-rejected': t.status_filter.rejected,
+    'export-btn-text': t.export_pdf,
+    'th-id': t.table_headers.id,
+    'th-channel': t.table_headers.channel,
+    'th-followers': t.table_headers.followers,
+    'th-account': t.table_headers.account,
+    'th-platform': t.table_headers.platform,
+    'th-price': t.table_headers.price,
+    'th-wallet': t.table_headers.wallet,
+    'th-notes': t.table_headers.notes,
+    'th-status': t.table_headers.status,
+    'th-receipt': t.table_headers.receipt,
+    'th-actions': t.table_headers.actions
+  };
+
+  Object.entries(elements).forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+
+  // ترجمة شارات الحالة داخل الجدول
+  document.querySelectorAll('.status-badge').forEach(el => {
+    const match = el.className.match(/badge-([\w-]+)/);
+    const statusKey = match ? match[1] : 'pending';
+    if (t.statuses[statusKey]) {
+      el.textContent = t.statuses[statusKey];
+    }
+  });
+
+  // ترجمة أزرار الإجراءات حسب النص
+  document.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.includes('رفض')) {
+      btn.innerHTML = `<i class="fas fa-times"></i> ${t.actions.reject}`;
+    }
+    if (btn.textContent.includes('اعتماد')) {
+      btn.innerHTML = `<i class="fas fa-check"></i> ${t.actions.approve}`;
+    }
+    if (btn.textContent.includes('إضافة إيصال')) {
+      btn.innerHTML = `<i class="fas fa-receipt"></i> ${t.actions.add_receipt}`;
+    }
+    if (btn.textContent.includes('جاري النشر')) {
+      btn.innerHTML = `<i class="fas fa-upload"></i> ${t.actions.publish}`;
+    }
+    if (btn.textContent.includes('مكتمل')) {
+      btn.innerHTML = `<i class="fas fa-check-circle"></i> ${t.actions.complete}`;
+    }
+  });
+
+  document.documentElement.dir = this.currentLanguage === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = this.currentLanguage;
+}
+,
+  
+  async toggleLanguage() {
+    this.currentLanguage = this.currentLanguage === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('language', this.currentLanguage);
+    await this.applyTranslations();
+  }
+};
+
+// عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', async () => {
+  await RequestsLanguageService.applyTranslations();
+
+  const switcher = document.getElementById('language-switcher');
+  if (switcher) {
+    switcher.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await RequestsLanguageService.toggleLanguage();
+    });
+  }
+});
+</script>
+
+
+
+</body>
+</html>

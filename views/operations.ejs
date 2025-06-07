@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>مراجعة مدير التشغيل</title>
+  <style>
+    body { font-family: sans-serif; direction: rtl; padding: 20px; }
+    .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; }
+    button { padding: 5px 10px; background: darkblue; color: white; border: none; }
+  </style>
+</head>
+<body>
+  <h2>طلبات بانتظار اعتماد مدير التشغيل</h2>
+
+  <% if (requests.length === 0) { %>
+    <p>لا توجد طلبات في مرحلة "مراجع".</p>
+  <% } else { %>
+    <% requests.forEach(req => { %>
+      <div class="card">
+        <p><strong>رابط القناة:</strong> <%= req.channel_link %></p>
+        <p><strong>المنصة:</strong> <%= req.platform %></p>
+        <p><strong>السعر:</strong> <%= req.price %></p>
+
+        <form method="POST" action="/approve-request/<%= req.id %>">
+          <button type="submit">✅ اعتماد الطلب</button>
+        </form>
+      </div>
+    <% }) %>
+  <% } %>
+</body>
+</html>

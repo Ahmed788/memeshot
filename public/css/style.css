@@ -1,0 +1,85 @@
+/* public/css/style.css */
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  max-width: 600px;
+  margin: auto;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form label {
+  display: block;
+  margin: 12px 0 4px;
+  font-weight: bold;
+}
+
+form input,
+form select,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form button {
+  margin-top: 20px;
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+/* التوجيه للغة العربية */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .navbar-nav {
+  margin-right: auto;
+}
+
+/* التوجيه للغة الإنجليزية */
+[dir="ltr"] {
+  text-align: left;
+}
+
+[dir="ltr"] .navbar-nav {
+  margin-left: auto;
+}
+
+/* تأثيرات زر تبديل اللغة */
+#language-switcher:hover {
+  background-color: #f3f4f6;
+}
+
+/* التأكد من أن القائمة المنسدلة تعمل مع كلا الاتجاهين */
+[dir="rtl"] .dropdown-menu {
+  right: 0;
+  left: auto;
+}
+
+[dir="ltr"] .dropdown-menu {
+  left: 0;
+  right: auto;
+}
