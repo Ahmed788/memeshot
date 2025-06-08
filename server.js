@@ -54,7 +54,8 @@ app.post('/submit-request', (req, res) => {
     platform,
     price,
     wallet,
-    notes
+    notes,
+    Maerket // أضف هذا السطر لجلب اسم المندوب من النموذج
   } = req.body;
 
   const checkQuery = "SELECT * FROM marketing_requests WHERE channel_link = ?";
@@ -66,14 +67,20 @@ app.post('/submit-request', (req, res) => {
     }
 
     const insertQuery = `
-      INSERT INTO marketing_requests (channel_link, followers, account_link, platform, price, wallet, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO marketing_requests (channel_link, followers, account_link, platform, price, wallet, notes, maerket)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    db.run(insertQuery, [channel_link, followers, account_link, platform, price, wallet, notes], function (err) {
-      if (err) return res.send("❌ لم يتم حفظ الطلب");
+    db.run(
+      insertQuery,
+      [channel_link, followers, account_link, platform, price, wallet, notes, Maerket],
+      function (err) {
+        if (err) return res.send("❌ لم يتم حفظ الطلب");
 
-      res.send("<h2>✅ تم استلام الطلب بنجاح</h2><a href='/'>عودة</a>");
-    });
+        // إعادة التوجيه مع باراميتر success
+        res.redirect('/marketing-request');
+         
+      }
+    );
   });
 });
 

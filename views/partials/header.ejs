@@ -9,6 +9,13 @@
 </style>
 
 <header style="background-color: #ffffff; padding: 1rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 100;">
+  <!-- رسالة الترحيب -->
+  <% if (user) { %>
+    <div id="welcome-message" style="background: #f3f4f6; color: #1a1a1a; text-align: center; padding: 0.5rem 0; font-weight: 500;">
+      Welcome, <%= user.name && user.name.trim() ? user.name : (user.username || 'User') %>
+    </div>
+  <% } %>
+
   <nav style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap;">
     <!-- الشعار -->
     <div style="display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0;">

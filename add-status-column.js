@@ -9,16 +9,23 @@ db.all(`SELECT id, username, role FROM users`, (err, rows) => {
   }
 });
 
-// إضافة حقل Maerket من نوع VARCHAR(50) إلى جدول marketing_requests
-db.run(
-  `ALTER TABLE marketing_requests ADD COLUMN Maerket VARCHAR(50)`,
-  function(err) {
-    if (err) {
-      console.error('❌ خطأ في إضافة الحقل Maerket:', err.message);
-    } else {
-      console.log('✅ تم إضافة الحقل Maerket بنجاح إلى جدول marketing_requests');
-    }
+// استعراض جميع الحقول (الأعمدة) في جدول marketing_requests
+db.all(`PRAGMA table_info(marketing_requests)`, (err, columns) => {
+  if (err) {
+    console.error('❌ خطأ في جلب أعمدة الجدول:', err.message);
+  } else {
+    console.table(columns);
   }
-);
+});
 
-db.close();
+// استعراض جميع البيانات في جدول marketing_requests
+db.all(`SELECT * FROM marketing_requests`, (err, rows) => {
+  if (err) {
+    console.error('❌ خطأ في جلب بيانات الجدول:', err.message);
+  } else {
+    console.table(rows);
+  }
+});
+
+
+

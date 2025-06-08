@@ -432,7 +432,7 @@
       </thead>
         <tbody>
           <% requests.forEach(r => { %>
-            <tr class="status-<%= r.status || 'pending' %>">
+            <tr class="status-<%= (r.status || 'pending').toLowerCase() %>">
               <td><%= r.id %></td>
               <td><a href="<%= r.channel_link %>" target="_blank"><i class="fas fa-external-link-alt"></i> زيارة</a></td>
               <td><%= r.followers.toLocaleString() %></td>
@@ -627,7 +627,15 @@
       doc.save(`طلبات_ميمشوت_${dateStr.replace(/\//g, '-')}.pdf`);
     }
 
-    // باقي الJavaScript كما هو ...
+    // ربط الفلترة بتغيير القائمة المنسدلة
+    document.addEventListener('DOMContentLoaded', function() {
+      const statusFilter = document.getElementById('statusFilter');
+      if (statusFilter) {
+        statusFilter.addEventListener('change', filterTable);
+      }
+      // تشغيل الفلترة عند التحميل (اختياري)
+      filterTable();
+    });
   </script>
   <script>
     function showReceiptModal(id) {
