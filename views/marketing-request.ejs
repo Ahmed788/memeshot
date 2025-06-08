@@ -289,14 +289,16 @@
   </div>
 
   <script>
-    // عرض الرسالة المنبثقة عند وجود success=1 في الرابط
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('success') && urlParams.get('success') === '1') {
       document.getElementById('success-modal').style.display = 'flex';
-      // عند الضغط على زر موافق، أخفِ الرسالة وأزل باراميتر success من الرابط
       document.getElementById('success-modal').querySelector('button').onclick = function() {
         document.getElementById('success-modal').style.display = 'none';
-        history.replaceState(null, '', window.location.pathname);
+        if (window.history.replaceState) {
+          const url = new URL(window.location);
+          url.searchParams.delete('success');
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
       };
     }
   </script>

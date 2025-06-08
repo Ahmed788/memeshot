@@ -77,8 +77,7 @@ app.post('/submit-request', (req, res) => {
         if (err) return res.send("❌ لم يتم حفظ الطلب");
 
         // إعادة التوجيه مع باراميتر success
-        res.redirect('/marketing-request');
-         
+        res.redirect('/?success=1');
       }
     );
   });
