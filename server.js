@@ -113,7 +113,7 @@ app.post("/review-request", (req, res) => {
       return res.send("❌ حدث خطأ أثناء تحديث الحالة");
     }
 
-    res.redirect("/all-requests");
+    res.redirect("/requests");
   });
 });
 
@@ -139,7 +139,7 @@ app.post('/approve-request', async (req, res) => {
   try {
     // تحديث حالة الطلب في قاعدة البيانات
     await db.run('UPDATE marketing_requests SET status = ? WHERE id = ?', ['approved', id]);
-    res.redirect('/all-requests'); // تأكد أن هذا هو اسم صفحة عرض الطلبات
+    res.redirect('/requests'); // تأكد أن هذا هو اسم صفحة عرض الطلبات
   } catch (err) {
     console.error('Error approving request:', err);
     res.status(500).send('Server error');
@@ -228,7 +228,7 @@ app.post('/add-receipt', (req, res) => {
       return res.status(500).send("خطأ في تحديث رقم الإيصال");
     }
 
-    res.redirect('/all-requests');
+    res.redirect('/requests');
   });
 });
 
@@ -242,7 +242,7 @@ app.post('/publish-request', async (req, res) => {
   try {
     // تحديث حالة الطلب إلى "publishing"
     await db.run('UPDATE marketing_requests SET status = ? WHERE id = ?', ['publishing', id]);
-    res.redirect('/all-requests');
+    res.redirect('/requests');
   } catch (error) {
     console.error('Error updating request to publishing:', error);
     res.status(500).send('Server error');
@@ -259,7 +259,7 @@ app.post('/complete-request', async (req, res) => {
   try {
     // تحديث حالة الطلب إلى "complete"
     await db.run('UPDATE marketing_requests SET status = ? WHERE id = ?', ['complete', id]);
-    res.redirect('/all-requests');
+    res.redirect('/requests');
   } catch (error) {
     console.error('Error updating request to complete:', error);
     res.status(500).send('Server error');
