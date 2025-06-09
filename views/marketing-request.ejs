@@ -176,20 +176,20 @@
 </head>
 <body>
   <div class="container">
-    <h2><i class="fas fa-bullhorn"></i> نموذج تقديم طلب التسويق</h2>
+    <h2 id="marketing-title"><i class="fas fa-bullhorn"></i> نموذج تقديم طلب التسويق</h2>
     <!-- رسالة منبثقة للنجاح -->
     <div id="success-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
       <div style="background:#fff; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:32px 24px; max-width:90vw; width:350px; text-align:center; position:relative;">
         <div style="font-size:2.5rem; color:#28a745; margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
-        <div style="font-size:1.1rem; margin-bottom:18px;">تم إرسال الطلب بنجاح!</div>
-        <button onclick="document.getElementById('success-modal').style.display='none'" style="background:#4F46E5; color:#fff; border:none; border-radius:8px; padding:10px 28px; font-size:1rem; cursor:pointer;">موافق</button>
+        <div id="success-message" style="font-size:1.1rem; margin-bottom:18px;">تم إرسال الطلب بنجاح!</div>
+        <button id="success-ok-btn" onclick="document.getElementById('success-modal').style.display='none'" style="background:#4F46E5; color:#fff; border:none; border-radius:8px; padding:10px 28px; font-size:1rem; cursor:pointer;">موافق</button>
       </div>
     </div>
     
     <form action="/submit-request" method="POST">
       <!-- حقل المندوب (username) -->
       <div class="form-group">
-        <label for="maerket"><i class="fas fa-user-tie"></i> المندوب</label>
+        <label id="label-market" for="maerket"><i class="fas fa-user-tie"></i> المندوب</label>
         <input 
           type="text" 
           id="maerket" 
@@ -201,7 +201,7 @@
       </div>
       
       <div class="form-group full-width">
-        <label for="channel_link"><i class="fas fa-link"></i> رابط قناة المؤثر</label>
+        <label id="label-channel-link" for="channel_link"><i class="fas fa-link"></i> رابط قناة المؤثر</label>
         <input 
           type="url" 
           id="channel_link" 
@@ -209,11 +209,11 @@
           required
           placeholder="https://instagram.com/username"
         >
-        <p class="form-note">يجب أن يكون الرابط عاماً وقابلاً للوصول</p>
+        <p id="note-channel-link" class="form-note">يجب أن يكون الرابط عاماً وقابلاً للوصول</p>
       </div>
       
       <div class="form-group">
-        <label for="followers"><i class="fas fa-users"></i> عدد المتابعين</label>
+        <label id="label-followers" for="followers"><i class="fas fa-users"></i> عدد المتابعين</label>
         <input 
           type="number" 
           id="followers" 
@@ -225,20 +225,20 @@
       </div>
       
       <div class="form-group">
-        <label for="platform"><i class="fas fa-mobile-screen"></i> المنصة المستخدمة</label>
+        <label id="label-platform" for="platform"><i class="fas fa-mobile-screen"></i> المنصة المستخدمة</label>
         <select id="platform" name="platform" required>
-          <option value="" disabled selected>اختر المنصة</option>
-          <option value="instagram">إنستغرام</option>
-          <option value="tiktok">تيك توك</option>
-          <option value="x">اكس</option>
-          <option value="youtube">يوتيوب</option>
-          <option value="telegram">تيليجرام</option>
-          <option value="snapchat">سناب شات</option>
+          <option value="" disabled selected id="option-select-platform">اختر المنصة</option>
+          <option value="instagram" id="option-instagram">إنستغرام</option>
+          <option value="tiktok" id="option-tiktok">تيك توك</option>
+          <option value="x" id="option-x">اكس</option>
+          <option value="youtube" id="option-youtube">يوتيوب</option>
+          <option value="telegram" id="option-telegram">تيليجرام</option>
+          <option value="snapchat" id="option-snapchat">سناب شات</option>
         </select>
       </div>
       
       <div class="form-group full-width">
-        <label for="account_link"><i class="fas fa-user"></i> رابط حساب المؤثر</label>
+        <label id="label-account-link" for="account_link"><i class="fas fa-user"></i> رابط حساب المؤثر</label>
         <input 
           type="url" 
           id="account_link" 
@@ -249,7 +249,7 @@
       </div>
       
       <div class="form-group">
-        <label for="price"><i class="fas fa-tag"></i> السعر المطلوب (ر.س)</label>
+        <label id="label-price" for="price"><i class="fas fa-tag"></i> السعر المطلوب (ر.س)</label>
         <input 
           type="number" 
           id="price" 
@@ -262,7 +262,7 @@
       </div>
       
       <div class="form-group">
-        <label for="wallet"><i class="fas fa-wallet"></i> عنوان محفظة سولانا</label>
+        <label id="label-wallet" for="wallet"><i class="fas fa-wallet"></i> عنوان محفظة سولانا</label>
         <input 
           type="text" 
           id="wallet" 
@@ -270,11 +270,11 @@
           required
           placeholder="أدخل عنوان المحفظة"
         >
-        <p class="form-note">يجب أن يكون العنوان صحيحاً لتلقي الدفع</p>
+        <p id="note-wallet" class="form-note">يجب أن يكون العنوان صحيحاً لتلقي الدفع</p>
       </div>
       
       <div class="form-group full-width">
-        <label for="notes"><i class="fas fa-notes"></i> ملاحظات إضافية</label>
+        <label id="label-notes" for="notes"><i class="fas fa-notes"></i> ملاحظات إضافية</label>
         <textarea 
           id="notes" 
           name="notes"
@@ -282,13 +282,18 @@
         ></textarea>
       </div>
       
-      <button type="submit">
+      <button id="submit-btn" type="submit">
         <i class="fas fa-paper-plane"></i> إرسال الطلب
       </button>
     </form>
   </div>
 
+  <script src="/js/languageService.js"></script>
   <script>
+    // تفعيل الترجمة عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', async () => {
+      await languageService.applyTranslations();
+    });
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('success') && urlParams.get('success') === '1') {
       document.getElementById('success-modal').style.display = 'flex';

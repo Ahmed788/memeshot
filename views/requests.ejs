@@ -432,6 +432,7 @@
       </thead>
         <tbody>
           <% requests.forEach(r => { %>
+            <% if (!(user && user.role === 'agent' && r.Maerket !== user.username)) { %>
             <tr class="status-<%= (r.status || 'pending').toLowerCase() %>">
               <td><%= r.id %></td>
               <td><a href="<%= r.channel_link %>" target="_blank"><i class="fas fa-external-link-alt"></i> زيارة</a></td>
@@ -498,6 +499,7 @@
               </td>
               <td><%= r.Maerket || '-' %></td>
             </tr>
+            <% } %>
           <% }) %>
         </tbody>
       </table>

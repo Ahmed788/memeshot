@@ -161,7 +161,11 @@ app.get('/all-requests', (req, res) => {
 
 // عرض الطلبات كلها
 app.get('/requests', (req, res) => {
-  db.all("SELECT * FROM marketing_requests", (err, rows) => {
+  db.all(`SELECT * FROM marketing_requests
+    ORDER BY
+      CASE WHEN status = 'rejected' THEN 2 WHEN status = 'complete' THEN 2 ELSE 1 END,
+      id DESC
+  `, (err, rows) => {
     if (err) return res.send("❌ حدث خطأ أثناء جلب الطلبات");
     res.render('requests', { requests: rows });
   });
