@@ -4,8 +4,56 @@
     <meta charset="UTF-8">
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+      .popup-success {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .popup-success.active {
+        display: flex;
+      }
+      .popup-success-content {
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        text-align: center;
+        font-size: 1.2rem;
+        color: #28a745;
+      }
+      .popup-success button {
+        margin-top: 18px;
+        background: #4F46E5;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 24px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+    </style>
 </head>
 <body dir="rtl">
     <h1>مرحبا بك في نظام إدارة التسويق - ميميشوت</h1>
+    <div id="popup-success" class="popup-success">
+      <div class="popup-success-content">
+        <div style="font-size:2.5rem; color:#28a745; margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
+        تم إدخال البيانات بنجاح!
+        <br>
+        <button onclick="document.getElementById('popup-success').classList.remove('active'); window.location.href='/'">موافق</button>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+      // إظهار الرسالة إذا كان success=1 في الرابط
+      if (window.location.search.includes('success=1')) {
+        document.getElementById('popup-success').classList.add('active');
+      }
+    </script>
 </body>
 </html>

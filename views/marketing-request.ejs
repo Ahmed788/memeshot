@@ -221,6 +221,7 @@
           required
           min="1000"
           placeholder="10000"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '')"
         >
       </div>
       
@@ -258,6 +259,7 @@
           min="50"
           step="50"
           placeholder="500"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '')"
         >
       </div>
       

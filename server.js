@@ -47,7 +47,7 @@ app.get('/locales/:lang.json', (req, res) => {
 
 // إرسال الطلب
 app.post('/submit-request', (req, res) => {
-  const {
+  let {
     channel_link,
     followers,
     account_link,
@@ -55,9 +55,13 @@ app.post('/submit-request', (req, res) => {
     price,
     wallet,
     notes,
-    Maerket // أضف هذا السطر لجلب اسم المندوب من النموذج
+    Maerket
   } = req.body;
-
+  // تحويل الأرقام والحالة للإنجليزية
+  if (typeof followers === 'string') followers = followers.replace(/[^0-9.]/g, '');
+  if (typeof price === 'string') price = price.replace(/[^0-9.]/g, '');
+  if (typeof platform === 'string') platform = platform.toLowerCase();
+  // حفظ البيانات كما هي بالإنجليزية
   const checkQuery = "SELECT * FROM marketing_requests WHERE channel_link = ?";
   db.get(checkQuery, [channel_link], (err, row) => {
     if (err) return res.send("❌ خطأ في النظام");
@@ -159,16 +163,42 @@ app.get('/all-requests', (req, res) => {
   });
 });
 
-// عرض الطلبات كلها
+// عرض الطلبات (منقول من requests.js)
 app.get('/requests', (req, res) => {
-  db.all(`SELECT * FROM marketing_requests
-    ORDER BY
-      CASE WHEN status = 'rejected' THEN 2 WHEN status = 'complete' THEN 2 ELSE 1 END,
-      id DESC
-  `, (err, rows) => {
-    if (err) return res.send("❌ حدث خطأ أثناء جلب الطلبات");
-    res.render('requests', { requests: rows });
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  db.all("SELECT * FROM marketing_requests", (err, rows) => {
+    if (err) return res.send("خطأ في  الطلبات");
+
+    res.render('requests', { requests: rows, user: req.session.user });
   });
+});
+
+// إضافة نتيجة حملة (منقول من requests.js)
+app.post('/add-campaign-result', (req, res) => {
+  const { request_id, referral_link, referral_revenue } = req.body;
+  db.run(
+    'INSERT INTO campaign_results (request_id, referral_link, referral_revenue) VALUES (?, ?, ?)',
+    [request_id, referral_link, referral_revenue],
+    function (err) {
+      if (err) {
+        return res.status(500).send('حدث خطأ أثناء إدخال البيانات');
+      }
+      // بعد إضافة نتائج الحملة، غيّر حالة الطلب إلى 'report'
+      db.run(
+        "UPDATE marketing_requests SET status = 'report' WHERE id = ?",
+        [request_id],
+        function (err2) {
+          if (err2) {
+            return res.status(500).send('حدث خطأ أثناء تحديث الحالة');
+          }
+          res.redirect('/requests?success=2');
+        }
+      );
+    }
+  );
 });
 
 // تحديث حالة الطلب يدويًا
@@ -223,15 +253,15 @@ app.listen(PORT, () => {
 });
 
 app.post('/add-receipt', (req, res) => {
-  const { id, receipt } = req.body;
-
+  let { id, receipt } = req.body;
+  // حفظ رقم الإيصال كإنجليزي
+  if (typeof receipt === 'string') receipt = receipt.replace(/[^0-9a-zA-Z-_.]/g, '');
   const query = `UPDATE marketing_requests SET receipt = ?, status = 'receipt-added' WHERE id = ?`;
   db.run(query, [receipt, id], function(err) {
     if (err) {
       console.error("Error updating receipt:", err);
       return res.status(500).send("خطأ في تحديث رقم الإيصال");
     }
-
     res.redirect('/requests');
   });
 });
@@ -318,12 +348,15 @@ function ensureAuthenticated(req, res, next) {
 }
 
 // صفحة إدارة الطلبات محمية
-app.get('/requests', ensureAuthenticated, (req, res) => {
-  // جلب الطلبات من قاعدة البيانات مثلاً
-  const requests = []; // هنا يجب وضع الكود الحقيقي لجلب الطلبات
-  res.render('requests', { requests, user: req.session.user });
+
+// جلب نتائج الحملة لطلب معين (API)
+app.get('/api/campaign-result/:requestId', (req, res) => {
+  const requestId = req.params.requestId;
+  db.get('SELECT * FROM campaign_results WHERE request_id = ?', [requestId], (err, row) => {
+    if (err) return res.status(500).json({error: 'db error'});
+    if (!row) return res.status(404).json({error: 'not found'});
+    res.json(row);
+  });
 });
 
-
-// إعداد الجلسة
 

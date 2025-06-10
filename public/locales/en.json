@@ -19,7 +19,8 @@
       "receipt_added": "Receipt Added",
       "publishing": "Publishing",
       "complete": "Complete",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "report": "Report"
     },
     "table_headers": {
       "id": "#",
@@ -41,7 +42,8 @@
       "receipt-added": "Receipt Added",
       "publishing": "Publishing",
       "complete": "Complete",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "report": "Report"
     },
     "actions": {
       "reject": "Reject",

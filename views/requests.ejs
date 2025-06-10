@@ -104,6 +104,7 @@
     .status-publishing { background-color: rgba(0, 123, 255, 0.1); }
     .status-complete { background-color: rgba(108, 117, 125, 0.1); }
     .status-rejected { background-color: rgba(220, 53, 69, 0.1); }
+    .status-report { background-color: #e0f7fa; } /* لون جديد لحالة تقرير */
     
     .status-badge {
       display: inline-block;
@@ -119,6 +120,7 @@
     .badge-publishing { background-color: #cce5ff; color: #004085; }
     .badge-complete { background-color: #e2e3e5; color: #383d41; }
     .badge-rejected { background-color: #f8d7da; color: #721c24; }
+    .badge-report { background-color: #e0f7fa; color: #00796b; } /* شارة حالة تقرير */
     
     /* الأزرار */
     .btn {
@@ -403,6 +405,7 @@
         <option value="publishing" id="status-publishing">جاري النشر</option>
         <option value="complete" id="status-complete">مكتمل</option>
         <option value="rejected" id="status-rejected">مرفوض</option>
+        <option value="report" id="status-report">تقرير</option>
       </select>
     </div>
     
@@ -419,7 +422,6 @@
           <th id="th-id">#</th>
           <th id="th-channel">رابط القناة</th>
           <th id="th-followers">المتابعين</th>
-          <th id="th-account">الحساب</th>
           <th id="th-platform">المنصة</th>
           <th id="th-price">السعر</th>
           <th id="th-wallet">المحفظة</th>
@@ -428,83 +430,106 @@
           <th id="th-receipt">الإيصال</th>
           <th id="th-actions">الإجراءات</th>
           <th id="th-maerket">المندوب</th>
+          <!-- حذف عمود نتائج الحملة من الرؤوس -->
         </tr>
       </thead>
-        <tbody>
-          <% requests.forEach(r => { %>
-            <% if (!(user && user.role === 'agent' && r.Maerket !== user.username)) { %>
-            <tr class="status-<%= (r.status || 'pending').toLowerCase() %>">
-              <td><%= r.id %></td>
-              <td><a href="<%= r.channel_link %>" target="_blank"><i class="fas fa-external-link-alt"></i> زيارة</a></td>
-              <td><%= r.followers.toLocaleString() %></td>
-              <td><%= r.account_link %></td>
-              <td><%= r.platform %></td>
-              <td><%= r.price.toLocaleString() %> ر.س</td>
-              <td><%= r.wallet %></td>
-              <td><%= r.notes || '-' %></td>
-              <td>
-                <span class="status-badge badge-<%= r.status || 'pending' %>">
-                  <% if(r.status === 'pending') { %>مراجعة<% } %>
-                  <% if(r.status === 'approved') { %>معتمد<% } %>
-                  <% if(r.status === 'receipt-added') { %>تم الإيصال<% } %>
-                  <% if(r.status === 'publishing') { %>جاري النشر<% } %>
-                  <% if(r.status === 'complete') { %>مكتمل<% } %>
-                  <% if(r.status === 'rejected') { %>مرفوض<% } %>
-                </span>
-              </td>
-              <td><%= r.receipt || '-' %></td>
-              <td>
-                <!-- marketing: رفض واعتماد الطلبات -->
-                <% if (user && user.role === 'marketing' && r.status === 'pending') { %>
-                  <!-- رفض -->
-                  <form method="POST" action="/reject-request" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= r.id %>">
-                    <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
-                  </form>
+      <tbody>
+        <% 
+          // ترتيب الصفوف: الأحدث أولاً (حسب تاريخ الإضافة أو التحديث)
+          const sortedRequests = [...requests].sort((a, b) => {
+            // إذا كان لديك حقول تاريخ مضافة (created_at أو updated_at) استخدمها، وإلا استخدم id كبديل
+            const dateA = a.updated_at || a.created_at || a.id;
+            const dateB = b.updated_at || b.created_at || b.id;
+            // ترتيب تنازلي (الأحدث أولاً)
+            if (dateA < dateB) return 1;
+            if (dateA > dateB) return -1;
+            return 0;
+          }); 
+        %>
+        <% sortedRequests.forEach(r => { %>
+          <% if (!(user && user.role === 'agent' && r.Maerket !== user.username)) { %>
+          <tr class="status-<%= (r.status || 'pending').toLowerCase() %>">
+            <td><%= r.id %></td>
+            <td><a href="<%= r.channel_link %>" target="_blank"><i class="fas fa-external-link-alt"></i> زيارة</a></td>
+            <td><%= r.followers.toLocaleString() %></td>
+            <td><%= r.platform %></td>
+            <td><%= r.price.toLocaleString() %> ر.س</td>
+            <td><%= r.wallet %></td>
+            <td><%= r.notes || '-' %></td>
+            <td>
+              <span class="status-badge badge-<%= r.status || 'pending' %>">
+                <% if(r.status === 'pending') { %>مراجعة<% } %>
+                <% if(r.status === 'approved') { %>معتمد<% } %>
+                <% if(r.status === 'receipt-added') { %>تم الإيصال<% } %>
+                <% if(r.status === 'publishing') { %>جاري النشر<% } %>
+                <% if(r.status === 'complete') { %>مكتمل<% } %>
+                <% if(r.status === 'report') { %>تقرير<% } %>
+                <% if(r.status === 'rejected') { %>مرفوض<% } %>
+              </span>
+            </td>
+            <td><%= r.receipt || '-' %></td>
+            <td>
+              <!-- marketing: رفض واعتماد الطلبات -->
+              <% if (user && user.role === 'marketing' && r.status === 'pending') { %>
+                <!-- رفض -->
+                <form method="POST" action="/reject-request" style="display:inline;">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
+                </form>
 
-                  <!-- اعتماد -->
-                  <form method="POST" action="/approve-request" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= r.id %>">
-                    <button class="btn btn-success" type="submit"><i class="fas fa-check"></i> اعتماد</button>
-                  </form>
-                <% } %>
+                <!-- اعتماد -->
+                <form method="POST" action="/approve-request" style="display:inline;">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button class="btn btn-success" type="submit"><i class="fas fa-check"></i> اعتماد</button>
+                </form>
+              <% } %>
 
-                <!-- sales: رفض بعد الاعتماد -->
-                <% if (user && user.role === 'sales' && r.status === 'approved') { %>
-                  <!-- رفض -->
-                  <form method="POST" action="/reject-request" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= r.id %>">
-                    <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
-                  </form>
+              <!-- sales: رفض بعد الاعتماد -->
+              <% if (user && user.role === 'sales' && r.status === 'approved') { %>
+                <!-- رفض -->
+                <form method="POST" action="/reject-request" style="display:inline;">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button class="btn btn-reject" type="submit"><i class="fas fa-times"></i> رفض</button>
+                </form>
 
-                  <!-- إضافة إيصال -->
-                  <button class="btn btn-action" onclick="showReceiptModal('<%= r.id %>')"><i class="fas fa-receipt"></i> إضافة إيصال</button>
-                <% } %>
+                <!-- إضافة إيصال -->
+                <button class="btn btn-action" onclick="showReceiptModal('<%= r.id %>')"><i class="fas fa-receipt"></i> إضافة إيصال</button>
+              <% } %>
 
-                <!-- agent: جاري النشر -->
-                <% if (user && user.role === 'agent' && r.status === 'receipt-added') { %>
-                  <form method="POST" action="/publish-request" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= r.id %>">
-                    <button class="btn btn-action" type="submit"><i class="fas fa-upload"></i> جاري النشر</button>
-                  </form>
-                <% } %>
+              <!-- agent: جاري النشر -->
+              <% if (user && user.role === 'agent' && r.status === 'receipt-added') { %>
+                <form method="POST" action="/publish-request" style="display:inline;">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button class="btn btn-action" type="submit"><i class="fas fa-upload"></i> جاري النشر</button>
+                </form>
+              <% } %>
 
-                <!-- marketing: مكتمل -->
-                <% if (user && user.role === 'marketing' && r.status === 'publishing') { %>
-                  <form method="POST" action="/complete-request" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= r.id %>">
-                    <button class="btn btn-secondary" type="submit"><i class="fas fa-check-circle"></i> مكتمل</button>
-                  </form>
-                <% } %>
-              </td>
-              <td><%= r.Maerket || '-' %></td>
-            </tr>
-            <% } %>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
+              <!-- marketing: مكتمل -->
+              <% if (user && user.role === 'marketing' && r.status === 'publishing') { %>
+                <form method="POST" action="/complete-request" style="display:inline;">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button class="btn btn-secondary" type="submit"><i class="fas fa-check-circle"></i> مكتمل</button>
+                </form>
+              <% } %>
+
+              <!-- marketing: نتائج الحملة (مكتمل) -->
+              <% if (user && user.role === 'marketing' && r.status === 'complete') { %>
+                <button class="btn btn-action" onclick="showCampaignResultModal('<%= r.id %>')">نتائج الحملة</button>
+              <% } %>
+
+              <!-- عرض تقرير الحملة (status = report) -->
+              <% if (r.status === 'report') { %>
+                <button class="btn btn-success" onclick="downloadCampaignReport('<%= r.id %>')">عرض تقرير الحملة</button>
+              <% } %>
+            </td>
+            <td><%= r.Maerket || '-' %></td>
+          </tr>
+          <% } %>
+        <% }) %>
+      </tbody>
+    </table>
   </div>
+</div>
 
   <!-- نافذة منبثقة لإضافة رقم الإيصال -->
   <div id="receiptModal" class="modal-overlay">
@@ -526,7 +551,46 @@
       </form>
     </div>
   </div>
- <script>
+
+  <!-- نافذة نتائج الحملة -->
+  <div id="campaignResultModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-chart-line"></i> إضافة نتائج الحملة</h3>
+        <button class="close-btn" onclick="hideCampaignResultModal()">&times;</button>
+      </div>
+      <form id="campaign-result-form" method="POST" action="/add-campaign-result">
+        <input type="hidden" id="campaign-request-id" name="request_id">
+        <div class="form-group">
+          <label for="referral-link">رابط الإحالة</label>
+          <input type="url" id="referral-link" class="form-control" name="referral_link" required placeholder="أدخل رابط الإحالة">
+        </div>
+        <div class="form-group">
+          <label for="referral-revenue">عائد الإحالات</label>
+          <input type="text" id="referral-revenue" class="form-control" name="referral_revenue" required placeholder="أدخل عائد الإحالات">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-reject" onclick="hideCampaignResultModal()"><i class="fas fa-times"></i> إلغاء</button>
+          <button type="submit" class="btn btn-action"><i class="fas fa-check"></i> حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- نافذة منبثقة لرسالة النجاح -->
+  <div id="successModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-check-circle" style="color:green"></i> نجاح</h3>
+      </div>
+      <div id="successMessage" style="margin: 20px 0; text-align:center; font-size:1.1em;"></div>
+      <div class="modal-footer" style="justify-content:center;">
+        <button id="success-ok-btn" class="btn btn-success">موافق</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
   
     // دالة تصفية الجدول حسب الحالة
     function filterTable() {
@@ -546,87 +610,103 @@
       });
     }
     
-    // دالة تصدير الجدول إلى PDF
+    // Export table to PDF in English
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
-      // عنوان التقرير
-      doc.setFont('tajawal', 'normal');
+      // Report title
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
-      doc.text('قائمة الطلبات - ميمشوت', 105, 15, { align: 'center' });
-      
-      // تاريخ التقرير
+      doc.text('Requests List - Memshot', 105, 15, { align: 'center' });
+      // Report date
       const now = new Date();
-      const dateStr = now.toLocaleDateString('ar-EG');
+      const dateStr = now.toLocaleDateString('en-GB');
       doc.setFontSize(10);
-      doc.text(`تاريخ التصدير: ${dateStr}`, 105, 25, { align: 'center' });
-      
-      // بيانات الجدول
+      doc.text(`Export Date: ${dateStr}`, 105, 25, { align: 'center' });
+      // Table headers in English
       const headers = [
-        "#", 
-        "رابط القناة", 
-        "المتابعين", 
-        "الحساب", 
-        "المنصة", 
-        "السعر", 
-        "المحفظة", 
-        "الحالة", 
-        "الإيصال"
+        "#",
+        "Channel Link",
+        "Followers",
+        // حذف عمود Account
+        "Platform",
+        "Price",
+        "Wallet",
+        "Status",
+        "Receipt"
       ];
-      
+      const statusMap = {
+        'مراجعة': 'Pending',
+        'معتمد': 'Approved',
+        'تم الإيصال': 'Receipt Added',
+        'جاري النشر': 'Publishing',
+        'مكتمل': 'Complete',
+        'مرفوض': 'Rejected',
+        'تقرير': 'Report',
+        'pending': 'Pending',
+        'approved': 'Approved',
+        'receipt-added': 'Receipt Added',
+        'publishing': 'Publishing',
+        'complete': 'Complete',
+        'rejected': 'Rejected',
+        'report': 'Report'
+      };
       const rows = [];
       document.querySelectorAll("tbody tr").forEach(row => {
         if (row.style.display !== "none") {
           const cells = row.querySelectorAll("td");
+          const followers = cells[2].textContent.replace(/[^\d.]/g, '').length > 0 ? Number(cells[2].textContent.replace(/[^\d.]/g, '')).toLocaleString('en') : cells[2].textContent;
+          const price = cells[5].textContent.replace(/[^\d.]/g, '').length > 0 ? Number(cells[5].textContent.replace(/[^\d.]/g, '')).toLocaleString('en') + ' SAR' : cells[5].textContent;
+          let status = cells[8].textContent.trim();
+          if (statusMap[status]) status = statusMap[status];
           const rowData = [
             cells[0].textContent,
             cells[1].querySelector("a") ? cells[1].querySelector("a").getAttribute("href") : "",
-            cells[2].textContent,
-            cells[3].textContent,
+            followers,
+            // حذف عمود Account
             cells[4].textContent,
-            cells[5].textContent,
+            price,
             cells[6].textContent,
-            cells[8].textContent.trim(),
+            status,
             cells[9].textContent
           ];
           rows.push(rowData);
         }
       });
-      
-      // إضافة الجدول إلى PDF
       doc.autoTable({
         head: [headers],
         body: rows,
         startY: 30,
         styles: {
-          font: 'tajawal',
+          font: 'helvetica',
           fontStyle: 'normal',
-          halign: 'center'
+          halign: 'center',
+          cellPadding: 2,
+          overflow: 'linebreak',
         },
         headStyles: {
           fillColor: [44, 62, 80],
           textColor: 255,
-          fontStyle: 'bold'
+          fontStyle: 'bold',
         },
         alternateRowStyles: {
           fillColor: [245, 247, 250]
         },
         columnStyles: {
-          0: { cellWidth: 'auto' },
-          1: { cellWidth: 'auto' },
-          2: { cellWidth: 'auto' },
-          3: { cellWidth: 'auto' },
-          4: { cellWidth: 'auto' },
-          5: { cellWidth: 'auto' },
-          6: { cellWidth: 'auto' },
-          7: { cellWidth: 'auto' },
-          8: { cellWidth: 'auto' }
-        }
+          0: { cellWidth: 12 }, // #
+          1: { cellWidth: 38 }, // Channel Link
+          2: { cellWidth: 22 }, // Followers
+          // حذف Account
+          3: { cellWidth: 22 }, // Platform
+          4: { cellWidth: 22 }, // Price
+          5: { cellWidth: 22 }, // Wallet
+          6: { cellWidth: 22 }, // Status
+          7: { cellWidth: 22 }  // Receipt
+        },
+        tableWidth: 'auto',
+        margin: { left: 8, right: 8 }
       });
-      
-      // حفظ الملف
-      doc.save(`طلبات_ميمشوت_${dateStr.replace(/\//g, '-')}.pdf`);
+      doc.save(`Memshot_Requests_${dateStr.replace(/\//g, '-')}.pdf`);
     }
 
     // ربط الفلترة بتغيير القائمة المنسدلة
@@ -637,6 +717,17 @@
       }
       // تشغيل الفلترة عند التحميل (اختياري)
       filterTable();
+    });
+
+    // ربط زر التصدير بدالة التصدير
+    document.addEventListener('DOMContentLoaded', function() {
+      const exportBtn = document.getElementById('export-btn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          exportToPDF();
+        });
+      }
     });
   </script>
   <script>
@@ -664,6 +755,22 @@
       }
     });
   </script>
+  <script>
+    function showCampaignResultModal(requestId) {
+      document.getElementById('campaign-request-id').value = requestId;
+      document.getElementById('campaignResultModal').classList.add('active');
+      document.getElementById('referral-link').focus();
+    }
+    function hideCampaignResultModal() {
+      document.getElementById('campaignResultModal').classList.remove('active');
+    }
+    document.getElementById('campaignResultModal').addEventListener('click', function(e) {
+      if(e.target === this) hideCampaignResultModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if(e.key === 'Escape') hideCampaignResultModal();
+    });
+  </script>
 
 <script>
 const RequestsLanguageService = {
@@ -688,7 +795,8 @@ const RequestsLanguageService = {
             receipt_added: "تم الإيصال",
             publishing: "جاري النشر",
             complete: "مكتمل",
-            rejected: "مرفوض"
+            rejected: "مرفوض",
+            report: "تقرير" // إضافة حالة report للترجمة
           },
           export_pdf: "تصدير إلى PDF",
           table_headers: {
@@ -769,6 +877,9 @@ async applyTranslations() {
     if (btn.textContent.includes('مكتمل')) {
       btn.innerHTML = `<i class="fas fa-check-circle"></i> ${t.actions.complete}`;
     }
+    if (btn.textContent.includes('تقرير')) {
+      btn.innerHTML = `<i class="fas fa-file-pdf"></i> ${t.actions.show_report}`;
+    }
   });
 
   document.documentElement.dir = this.currentLanguage === 'ar' ? 'rtl' : 'ltr';
@@ -796,8 +907,141 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+  <script>
+    // دالة تشغيل صوت الإشعار
+    function playNotificationSound() {
+      const audio = new Audio('/sound/notification.mp3');
+      audio.currentTime = 0;
+      audio.volume = 1.0;
+      audio.play().catch(function(e) {
+        // محاولة التشغيل بعد تفاعل المستخدم إذا فشل التشغيل التلقائي
+        document.body.addEventListener('click', function once() {
+          audio.play();
+          document.body.removeEventListener('click', once);
+        });
+      });
+    }
+
+    // دالة التحقق من وجود طلبات غير معالجة
+    function checkUnprocessedRequests() {
+      // عدّ الطلبات التي حالتها "pending"
+      const rows = document.querySelectorAll('tbody tr.status-pending');
+      if (rows.length > 0) {
+        playNotificationSound();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // ...existing code...
+      checkUnprocessedRequests();
+    });
+  </script>
 
 
+  <div id="success-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
+      <div style="background:#fff; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:32px 24px; max-width:90vw; width:350px; text-align:center; position:relative;">
+        <div style="font-size:2.5rem; color:#28a745; margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
+        <div id="success-message" style="font-size:1.1rem; margin-bottom:18px;">تم إرسال الطلب بنجاح!</div>
+        <button id="success-ok-btn" onclick="document.getElementById('success-modal').style.display='none'" style="background:#4F46E5; color:#fff; border:none; border-radius:8px; padding:10px 28px; font-size:1rem; cursor:pointer;">موافق</button>
+      </div>
+    </div>
+
+     <script>
+    // تفعيل الترجمة عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', async () => {
+      await languageService.applyTranslations();
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success') && urlParams.get('success') === '2') {
+      document.getElementById('success-modal').style.display = 'flex';
+      document.getElementById('success-modal').querySelector('button').onclick = function() {
+        document.getElementById('success-modal').style.display = 'none';
+        if (window.history.replaceState) {
+          const url = new URL(window.location);
+          url.searchParams.delete('success');
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
+      };
+    }
+  </script>
+
+  <!-- دالة تنزيل تقرير الحملة كـ PDF -->
+  <script>
+    async function downloadCampaignReport(requestId) {
+      // جلب بيانات الطلب ونتائج الحملة من عنصر الصف
+      const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => tr.querySelector('td') && tr.querySelector('td').textContent == requestId);
+      if (!row) return alert('تعذر العثور على بيانات الطلب');
+      const cells = row.querySelectorAll('td');
+      // بيانات الطلب الأساسية
+      const data = {
+        id: cells[0].textContent,
+        channel_link: cells[1].querySelector('a') ? cells[1].querySelector('a').getAttribute('href') : '',
+        followers: cells[2].textContent,
+        account: cells[3].textContent,
+        platform: cells[4].textContent,
+        price: cells[5].textContent,
+        wallet: cells[6].textContent,
+        notes: cells[7].textContent,
+        status: cells[8].textContent,
+        receipt: cells[9].textContent,
+        maerket: cells[11].textContent
+      };
+      // جلب نتائج الحملة من الخادم
+      let campaignResult = null;
+      try {
+        const res = await fetch(`/api/campaign-result/${requestId}`);
+        if (res.ok) campaignResult = await res.json();
+      } catch(e) {}
+      // إنشاء PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({orientation: 'p', unit: 'mm', format: 'a4'});
+      // --- تصميم مميز للتقرير بالإنجليزية ---
+      // رأس ملون
+      doc.setFillColor(44, 62, 80);
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('Marketing Campaign Report', 105, 18, { align: 'center' });
+      doc.setTextColor(44,62,80);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      let y = 40;
+      function addField(label, value) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 20, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value||'-'), 70, y);
+        y += 10;
+      }
+      addField('Request ID:', data.id);
+      addField('Channel Link:', data.channel_link);
+      addField('Followers:', data.followers);
+      addField('Account:', data.account);
+      addField('Platform:', data.platform);
+      addField('Price:', data.price);
+      addField('Wallet:', data.wallet);
+      addField('Notes:', data.notes);
+      addField('Agent:', data.maerket);
+      addField('Status:', data.status);
+      addField('Receipt:', data.receipt);
+      if (campaignResult) {
+        y += 5;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(76, 175, 80);
+        doc.text('Campaign Result', 20, y);
+        doc.setTextColor(44,62,80);
+        y += 8;
+        addField('Referral Link:', campaignResult.referral_link);
+        addField('Referral Revenue:', campaignResult.referral_revenue);
+      }
+      // تذييل
+      doc.setFontSize(10);
+      doc.setTextColor(150,150,150);
+      doc.text('Generated by Memshot Marketing System - ' + (new Date()).toLocaleDateString('en-GB'), 105, 285, {align:'center'});
+      doc.save(`Campaign_Report_${data.id}.pdf`);
+    }
+  </script>
 
 </body>
 </html>

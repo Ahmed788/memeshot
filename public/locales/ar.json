@@ -19,7 +19,8 @@
       "receipt_added": "تم الإيصال",
       "publishing": "جاري النشر",
       "complete": "مكتمل",
-      "rejected": "مرفوض"
+      "rejected": "مرفوض",
+      "report": "تقرير"
     },
     "export_pdf": "تصدير إلى PDF",
     "table_headers": {
@@ -42,7 +43,8 @@
   "receipt-added": "تم الإيصال",
   "publishing": "جاري النشر",
   "complete": "مكتمل",
-  "rejected": "مرفوض"
+  "rejected": "مرفوض",
+  "report": "تقرير"
 },
 "actions": {
   "reject": "رفض",
