@@ -239,18 +239,18 @@
       </div>
       
       <div class="form-group full-width">
-        <label id="label-account-link" for="account_link"><i class="fas fa-user"></i> رابط حساب المؤثر</label>
+        <label id="label-account-link" for="account_link"><i class="fas fa-user"></i>  ( اختياري )رابط حساب المؤثر</label>
         <input 
-          type="url" 
+          type="text" 
           id="account_link" 
           name="account_link" 
-          required
-          placeholder="https://instagram.com/username"
+          maxlength="255"
+          placeholder="رابط أو معرف أو أي نص..."
         >
       </div>
       
       <div class="form-group">
-        <label id="label-price" for="price"><i class="fas fa-tag"></i> السعر المطلوب (ر.س)</label>
+        <label id="label-price" for="price"><i class="fas fa-tag"></i> السعر المطلوب (دولار)</label>
         <input 
           type="number" 
           id="price" 
@@ -264,12 +264,12 @@
       </div>
       
       <div class="form-group">
-        <label id="label-wallet" for="wallet"><i class="fas fa-wallet"></i> عنوان محفظة سولانا</label>
+        <label id="label-wallet" for="wallet"><i class="fas fa-wallet"></i> (اختياري )عنوان محفظة سولانا</label>
         <input 
           type="text" 
           id="wallet" 
           name="wallet" 
-          required
+       
           placeholder="أدخل عنوان المحفظة"
         >
         <p id="note-wallet" class="form-note">يجب أن يكون العنوان صحيحاً لتلقي الدفع</p>
